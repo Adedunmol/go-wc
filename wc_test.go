@@ -3,11 +3,13 @@ package main_test
 import (
 	wc "github.com/Adedunmol/go-wc"
 	"reflect"
+	"strings"
 	"testing"
 	"testing/fstest"
 )
 
 func TestWordCount(t *testing.T) {
+	width := strings.Repeat(" ", 8)
 
 	t.Run("test counting", func(t *testing.T) {
 		fileSystem := fstest.MapFS{
@@ -27,7 +29,8 @@ func TestWordCount(t *testing.T) {
 		}
 		files := []string{"test.txt"}
 
-		wanted := "1 test.txt"
+		result := "1 test.txt"
+		wanted := strings.Join([]string{width, result}, "")
 		count := wc.NewCountFromFile(fileSystem, files)
 
 		got := count[0].Format(wc.Options{Line: true})
@@ -40,7 +43,8 @@ func TestWordCount(t *testing.T) {
 		}
 		files := []string{"test.txt"}
 
-		wanted := "3 test.txt"
+		result := "3 test.txt"
+		wanted := strings.Join([]string{width, result}, "")
 		count := wc.NewCountFromFile(fileSystem, files)
 
 		got := count[0].Format(wc.Options{Word: true})
@@ -53,7 +57,8 @@ func TestWordCount(t *testing.T) {
 		}
 		files := []string{"test.txt"}
 
-		wanted := "16 test.txt"
+		result := "16 test.txt"
+		wanted := strings.Join([]string{width, result}, "")
 		count := wc.NewCountFromFile(fileSystem, files)
 
 		got := count[0].Format(wc.Options{Character: true})
@@ -66,7 +71,8 @@ func TestWordCount(t *testing.T) {
 		}
 		files := []string{"test.txt"}
 
-		wanted := "1 3 16 test.txt"
+		result := "1 3 16 test.txt"
+		wanted := strings.Join([]string{width, result}, "")
 		count := wc.NewCountFromFile(fileSystem, files)
 
 		got := count[0].Format(wc.Options{})

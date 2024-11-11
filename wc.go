@@ -53,7 +53,11 @@ func (c *Count) Format(options Options) string {
 
 	output = append(output, c.FileName)
 
-	return strings.Join(output, " ")
+	result := strings.Join(output, " ")
+
+	width := strings.Repeat(" ", 8)
+
+	return strings.Join([]string{width, result}, "")
 }
 
 func NewCountFromFile(fileSystem fs.FS, files []string) []Count {
