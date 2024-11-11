@@ -14,7 +14,7 @@ func TestWordCount(t *testing.T) {
 	files := []string{"test.txt"}
 
 	counts := wc.NewCountFromFile(fileSystem, files)
-	wanted := wc.Count{FileName: "test.txt"}
+	wanted := wc.Count{FileName: "test.txt", Lines: 1}
 
 	assertCountEqual(t, counts[0], wanted)
 }

@@ -18,6 +18,7 @@ func main() {}
 
 type Count struct {
 	FileName string
+	Lines    uint
 }
 
 func NewCountFromFile(fileSystem fs.FS, files []string) []Count {
@@ -37,7 +38,9 @@ func getFile(fileSystem fs.FS, filePath string, count *Count) error {
 
 	defer file.Close()
 	fileData, _ := io.ReadAll(file)
-	_ = splitLines(string(fileData))
+	lines := splitLines(string(fileData))
+
+	count.Lines = uint(len(lines))
 
 	return nil
 }
