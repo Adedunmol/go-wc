@@ -5,6 +5,7 @@ import (
 	"flag"
 	"io"
 	"io/fs"
+	"strconv"
 	"strings"
 )
 
@@ -21,6 +22,38 @@ type Count struct {
 	Lines      uint
 	Words      uint
 	Characters uint
+}
+
+type Options struct {
+	Line      bool
+	Word      bool
+	Character bool
+}
+
+func (c *Count) Format(options Options) string {
+	var output []string
+
+	if options.Line {
+		output = append(output, strconv.Itoa(int(c.Lines)))
+	}
+
+	if options.Word {
+		output = append(output, strconv.Itoa(int(c.Words)))
+	}
+
+	if options.Character {
+		output = append(output, strconv.Itoa(int(c.Characters)))
+	}
+
+	if len(output) == 0 {
+		output = append(output, strconv.Itoa(int(c.Lines)))
+		output = append(output, strconv.Itoa(int(c.Words)))
+		output = append(output, strconv.Itoa(int(c.Characters)))
+	}
+
+	output = append(output, c.FileName)
+
+	return strings.Join(output, " ")
 }
 
 func NewCountFromFile(fileSystem fs.FS, files []string) []Count {
