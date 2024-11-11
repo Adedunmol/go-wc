@@ -17,8 +17,10 @@ var (
 func main() {}
 
 type Count struct {
-	FileName string
-	Lines    uint
+	FileName   string
+	Lines      uint
+	Words      uint
+	Characters uint
 }
 
 func NewCountFromFile(fileSystem fs.FS, files []string) []Count {
@@ -42,6 +44,10 @@ func getFile(fileSystem fs.FS, filePath string, count *Count) error {
 
 	count.Lines = uint(len(lines))
 
+	count.Words = uint(splitWords(lines))
+
+	count.Characters = uint(splitCharacters(lines))
+
 	return nil
 }
 
@@ -54,4 +60,23 @@ func splitLines(line string) []string {
 	}
 
 	return lines
+}
+
+func splitWords(lines []string) uint {
+	var words uint
+	for _, line := range lines {
+		splitWords := strings.Split(line, " ")
+		words += uint(len(splitWords))
+	}
+
+	return words
+}
+
+func splitCharacters(lines []string) uint {
+	var chars uint
+	for _, line := range lines {
+		splitChars := strings.Split(line, "")
+		chars += uint(len(splitChars))
+	}
+	return chars
 }
