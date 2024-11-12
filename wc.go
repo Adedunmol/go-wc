@@ -36,7 +36,11 @@ func main() {
 		usage()
 	}
 
-	fmt.Println(args)
+	files := stat(args)
+
+	if _, err := run(files, Options{}); err != nil {
+		log.Println(err)
+	}
 }
 
 type Count struct {
@@ -50,6 +54,24 @@ type Options struct {
 	Line      bool
 	Word      bool
 	Character bool
+}
+
+func run(files []string, options Options) (string, error) {
+	var output []string
+
+	counts := NewCountFromFile(os.DirFS("."), files)
+
+	for _, count := range counts {
+		result := count.Format(options)
+		output = append(output, result)
+	}
+
+	if len(files) > 1 {
+		total := Total(counts)
+		output = append(output, total)
+	}
+
+	return strings.Join(output, "\n"), nil
 }
 
 func (c *Count) Format(options Options) string {
