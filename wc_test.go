@@ -80,6 +80,26 @@ func TestWordCount(t *testing.T) {
 	})
 }
 
+func TestTotal(t *testing.T) {
+	width := strings.Repeat(" ", 8)
+
+	fileSystem := fstest.MapFS{
+		"test.txt": {Data: []byte(string("Some random text"))},
+	}
+	files := []string{"test.txt"}
+
+	counts := wc.NewCountFromFile(fileSystem, files)
+
+	got := wc.Total(counts)
+
+	result := "1 3 16 total"
+	wanted := strings.Join([]string{width, result}, "")
+
+	if got != wanted {
+		t.Errorf(" wanted %s, got %s", wanted, got)
+	}
+}
+
 func assertCountEqual(t *testing.T, got, want wc.Count) {
 	t.Helper()
 	if !reflect.DeepEqual(got, want) {

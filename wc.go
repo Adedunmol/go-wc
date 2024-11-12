@@ -3,8 +3,11 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"io"
 	"io/fs"
+	"log"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -15,7 +18,26 @@ var (
 	character = flag.Bool("c", false, "Show only character count")
 )
 
-func main() {}
+func usage() {
+	fmt.Fprintf(os.Stderr, "usage: wc [options] [files]\n")
+	flag.PrintDefaults()
+	os.Exit(2)
+}
+
+func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetPrefix("wc: ")
+
+	flag.Usage = usage
+	flag.Parse()
+
+	args := flag.Args()
+	if len(args) == 0 {
+		usage()
+	}
+
+	fmt.Println(args)
+}
 
 type Count struct {
 	FileName   string
@@ -116,4 +138,44 @@ func splitCharacters(lines []string) uint {
 		chars += uint(len(splitChars))
 	}
 	return chars
+}
+
+func stat(files []string) []string {
+	filteredFiles := make([]string, len(files))
+	for _, file := range files {
+		info, err := os.Stat(file)
+		if err != nil {
+		}
+
+		if !info.IsDir() {
+			filteredFiles = append(filteredFiles, file)
+		}
+	}
+
+	return filteredFiles
+}
+
+func Total(counts []Count) string {
+	var lines uint
+	var characters uint
+	var words uint
+
+	for _, count := range counts {
+		lines += count.Lines
+		characters += count.Characters
+		words += count.Words
+	}
+
+	var output []string
+
+	output = append(output, strconv.Itoa(int(lines)))
+	output = append(output, strconv.Itoa(int(words)))
+	output = append(output, strconv.Itoa(int(characters)))
+	output = append(output, "total")
+
+	result := strings.Join(output, " ")
+
+	width := strings.Repeat(" ", 8)
+
+	return strings.Join([]string{width, result}, "")
 }
