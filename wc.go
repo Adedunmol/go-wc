@@ -26,7 +26,7 @@ func usage() {
 }
 
 func main() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	//log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetPrefix("wc: ")
 
 	flag.Usage = usage
@@ -48,7 +48,7 @@ func main() {
 		log.Fatal(errors.Unwrap(err))
 	}
 
-	log.Println(output)
+	fmt.Println(output)
 }
 
 type Count struct {
@@ -68,15 +68,12 @@ func run(files []string, options Options) (string, error) {
 	var output []string
 
 	counts := NewCountFromFile(os.DirFS("."), files)
-	log.Println("counts: ", counts)
 
 	for _, count := range counts {
 		result := count.Format(options)
 		output = append(output, result)
 	}
-	log.Println("output: ", output)
-	log.Println("files length: ", len(files))
-	log.Println(files)
+
 	if len(files) > 1 {
 		total := Total(counts)
 		output = append(output, total)
@@ -181,7 +178,7 @@ func splitCharacters(lines []string) uint {
 }
 
 func stat(files []string) ([]string, error) {
-	filteredFiles := make([]string, len(files))
+	var filteredFiles []string
 	for _, file := range files {
 		info, err := os.Stat(file)
 		if err != nil {
