@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -36,11 +37,18 @@ func main() {
 		usage()
 	}
 
-	files := stat(args)
+	files, err := stat(args)
 
-	if _, err := run(files, Options{}); err != nil {
-		log.Println(err)
+	if err != nil {
+		log.Fatal(errors.Unwrap(err))
 	}
+
+	var output string
+	if output, err = run(files, Options{Line: *line, Word: *word, Character: *character}); err != nil {
+		log.Fatal(errors.Unwrap(err))
+	}
+
+	log.Println(output)
 }
 
 type Count struct {
@@ -60,12 +68,15 @@ func run(files []string, options Options) (string, error) {
 	var output []string
 
 	counts := NewCountFromFile(os.DirFS("."), files)
+	log.Println("counts: ", counts)
 
 	for _, count := range counts {
 		result := count.Format(options)
 		output = append(output, result)
 	}
-
+	log.Println("output: ", output)
+	log.Println("files length: ", len(files))
+	log.Println(files)
 	if len(files) > 1 {
 		total := Total(counts)
 		output = append(output, total)
@@ -117,10 +128,17 @@ func NewCountFromFile(fileSystem fs.FS, files []string) []Count {
 
 func getFile(fileSystem fs.FS, filePath string, count *Count) error {
 	//path, _ := filepath.Abs(filePath)
-	file, _ := fileSystem.Open(filePath)
+	file, err := fileSystem.Open(filePath)
+	if err != nil {
+		return fmt.Errorf("open file %s: %w", filePath, err)
+	}
 
 	defer file.Close()
-	fileData, _ := io.ReadAll(file)
+	fileData, err := io.ReadAll(file)
+	if err != nil {
+		return fmt.Errorf("read file %s: %w", filePath, err)
+	}
+
 	lines := splitLines(string(fileData))
 
 	count.Lines = uint(len(lines))
@@ -162,11 +180,12 @@ func splitCharacters(lines []string) uint {
 	return chars
 }
 
-func stat(files []string) []string {
+func stat(files []string) ([]string, error) {
 	filteredFiles := make([]string, len(files))
 	for _, file := range files {
 		info, err := os.Stat(file)
 		if err != nil {
+			return nil, fmt.Errorf("stat file %s: %w", file, err)
 		}
 
 		if !info.IsDir() {
@@ -174,7 +193,7 @@ func stat(files []string) []string {
 		}
 	}
 
-	return filteredFiles
+	return filteredFiles, nil
 }
 
 func Total(counts []Count) string {
